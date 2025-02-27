@@ -1,38 +1,44 @@
-import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteCard } from './store';
 
-const UserCard = ({ user }) => {
+export default function CardList({ setEditingCard }) {
+	const cards = useSelector(state => state.cards);
+	const dispatch = useDispatch();
+
 	return (
-		<div className='col'>
-			<div className='card border-primary shadow-sm'>
-				<div className='card-body text-center'>
-					<img
-						src='https://via.placeholder.com/80'
-						alt='User'
-						className='rounded-circle mb-2 border border-primary p-1'
-					/>
-					<h5 className='card-title text-primary'>{user.fullName}</h5>
-					<p className='mb-1'>
-						<strong>Email:</strong>{' '}
-						<a
-							href={`mailto:${user.email}`}
-							className='text-decoration-none'
+		<div className='card-container'>
+			{cards.map(card => (
+				<div key={card.id} className='card'>
+					<p>
+						<strong>Name:</strong> {card.name}
+					</p>
+					<p>
+						<strong>Last Name:</strong> {card.lastName}
+					</p>
+					<p>
+						<strong>Email:</strong> {card.email}
+					</p>
+					<h3>Age: {card.title}</h3>
+					<p>
+						<strong>Gender:</strong> {card.jinsi}
+					</p>
+
+					<div className='card-buttons'>
+						<button
+							className='edit-button'
+							onClick={() => setEditingCard(card)}
 						>
-							{user.email}
-						</a>
-					</p>
-					<p className='mb-1'>
-						<strong>Tel:</strong> {user.phone}
-					</p>
-					<p className='mb-1'>
-						<strong>Birth date:</strong> {user.birthDate}
-					</p>
-					<p className='mb-1'>
-						<strong>Gender:</strong> {user.gender}
-					</p>
+							Edit
+						</button>
+						<button
+							className='delete-button'
+							onClick={() => dispatch(deleteCard(card.id))}
+						>
+							Delete
+						</button>
+					</div>
 				</div>
-			</div>
+			))}
 		</div>
 	);
-};
-
-export default UserCard;
+}

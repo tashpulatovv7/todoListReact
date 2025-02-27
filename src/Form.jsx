@@ -1,125 +1,107 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { addCard, updateCard } from './store';
 
-const Form = ({ addUser }) => {
+export default function FormComponent({ editingCard, setEditingCard }) {
+	const dispatch = useDispatch();
 	const [formData, setFormData] = useState({
-		fullName: '',
+		id: null,
+		title: '',
+		name: '',
+		lastName: '',
 		email: '',
-		phone: '',
-		birthDate: '',
-		hobbies: [],
-		country: '',
-		comment: '',
+		category: 'default',
+		subscribe: false,
 	});
+
+	useEffect(() => {
+		if (editingCard) {
+			setFormData(editingCard);
+		}
+	}, [editingCard]);
 
 	const handleChange = e => {
 		const { name, value, type, checked } = e.target;
-		if (type === 'checkbox') {
-			setFormData({
-				...formData,
-				hobbies: checked
-					? [...formData.hobbies, value]
-					: formData.hobbies.filter(hobby => hobby !== value),
-			});
-		} else {
-			setFormData({ ...formData, [name]: value });
-		}
+		setFormData(prev => ({
+			...prev,
+			[name]: type === 'checkbox' ? checked : value,
+		}));
 	};
 
 	const handleSubmit = e => {
 		e.preventDefault();
-		addUser(formData);
-		setFormData({
-			fullName: '',
-			email: '',
-			phone: '',
-			birthDate: '',
-			hobbies: [],
-			country: '',
-			comment: '',
-		});
+		if (
+			formData.title.trim() &&
+			formData.name.trim() &&
+			formData.lastName.trim() &&
+			formData.email.trim()
+		) {
+			if (formData.id) {
+				dispatch(updateCard(formData));
+			} else {
+				dispatch(addCard({ ...formData, id: Date.now() }));
+			}
+			setFormData({
+				id: null,
+				title: '',
+				name: '',
+				lastName: '',
+				email: '',
+				category: 'default',
+				subscribe: false,
+			});
+			setEditingCard(null);
+		}
 	};
 
 	return (
-		<div className='card shadow-sm'>
-			<div className='card-body'>
-				<h5 className='card-title text-center text-primary'>Add User</h5>
-				<form onSubmit={handleSubmit}>
-					<div className='mb-3'>
-						<input
-							type='text'
-							name='fullName'
-							placeholder='Name & Surname'
-							className='form-control'
-							value={formData.fullName}
-							onChange={handleChange}
-							required
-						/>
-					</div>
-					<div className='mb-3'>
-						<input
-							type='email'
-							name='email'
-							placeholder='Email'
-							className='form-control'
-							value={formData.email}
-							onChange={handleChange}
-							required
-						/>
-					</div>
-					<div className='mb-3'>
-						<input
-							type='tel'
-							name='phone'
-							placeholder='Phone Number'
-							className='form-control'
-							value={formData.phone}
-							onChange={handleChange}
-							required
-						/>
-					</div>
-					<div className='mb-3'>
-						<input
-							type='date'
-							name='birthDate'
-							className='form-control'
-							value={formData.birthDate}
-							onChange={handleChange}
-						/>
-					</div>
+		<form onSubmit={handleSubmit} className='form-container'>
+			<input
+				className='input'
+				name='name'
+				value={formData.name}
+				onChange={handleChange}
+				placeholder='Name'
+			/>
+			<input
+				className='input'
+				name='lastName'
+				value={formData.lastName}
+				onChange={handleChange}
+				placeholder='Last Name'
+			/>
+			<input
+				className='input'
+				type='email'
+				name='email'
+				value={formData.email}
+				onChange={handleChange}
+				placeholder='Email'
+			/>
+			<input
+				className='input-number'
+				type='number'
+				name='title'
+				value={formData.title}
+				onChange={handleChange}
+				placeholder='Age'
+			/>
+			<select
+				className='inputss'
+				name='jinsi'
+				value={formData.category}
+				onChange={handleChange}
+			>
+				<option value='default' disabled>
+					Select Gender
+				</option>
+				<option value='Male'>Male</option>
+				<option value='Female'>Female</option>
+			</select>
 
-					<div className='mb-3'>
-						<label className='form-label'>Gender:</label>
-						<div className='form-check'>
-							<input
-								className='form-check-input'
-								type='radio'
-								name='gender'
-								value='Man'
-								checked={formData.gender === 'Man'}
-								onChange={handleChange}
-							/>
-							<label className='form-check-label'>Man</label>
-						</div>
-						<div className='form-check'>
-							<input
-								className='form-check-input'
-								type='radio'
-								name='gender'
-								value='Woman'
-								checked={formData.gender === 'Woman'}
-								onChange={handleChange}
-							/>
-							<label className='form-check-label'>Woman</label>
-						</div>
-					</div>
-
-					<button type='submit' className='btn btn-primary w-100'>
-						Add
-					</button>
-				</form>
-			</div>
-		</div>
+			<button className='button' type='submit'>
+				{formData.id ? 'Update' : 'Add'}
+			</button>
+		</form>
 	);
-};
-
-export default Form;
+}

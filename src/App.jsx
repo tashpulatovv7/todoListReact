@@ -1,32 +1,36 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { useState } from 'react';
-import UserCard from './Card';
-import Form from './Form';
+import { useState } from 'react';
+import { Provider } from 'react-redux';
+import CardList from './Card';
+import FormComponent from './Form';
+import { store } from './store';
+import './style.css';
 
-const App = () => {
-	const [users, setUsers] = useState([]);
+export default function App() {
+	const [editingCard, setEditingCard] = useState(null);
+	const [isDarkMode, setIsDarkMode] = useState(false);
 
-	const addUser = user => {
-		setUsers([...users, user]);
+	const toggleDarkMode = () => {
+		const newMode = !isDarkMode;
+		setIsDarkMode(newMode);
+
+		if (newMode) {
+			document.body.setAttribute('data-theme', 'dark');
+		} else {
+			document.body.setAttribute('data-theme', 'light');
+		}
 	};
 
 	return (
-		<div className='container py-4'>
-			<h2 className='text-center text-white bg-primary p-3 rounded'>TODO LIST</h2>
-			<div className='row mt-4'>
-				<div className='col-lg-4 col-md-6'>
-					<Form addUser={addUser} />
-				</div>
-				<div className='col-lg-8 col-md-6'>
-					<div className='row row-cols-1 row-cols-md-2 g-3'>
-						{users.map((user, index) => (
-							<UserCard key={index} user={user} />
-						))}
-					</div>
-				</div>
+		<Provider store={store}>
+			<div className='container'>
+				<FormComponent editingCard={editingCard} setEditingCard={setEditingCard} />
+				<CardList setEditingCard={setEditingCard} />
 			</div>
-		</div>
+			<div className='App'>
+				<button onClick={toggleDarkMode} className='toggle-dark-mode'>
+					{isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+				</button>
+			</div>
+		</Provider>
 	);
-};
-
-export default App;
+}
